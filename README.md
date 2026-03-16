@@ -1,10 +1,10 @@
-# ✈️ FlyMinder — Smart Travel Companion
+# FlyMinder — Smart Travel Companion
 
 Your smart travel companion that helps you never miss a flight. FlyMinder provides intelligent departure reminders and personalized travel alerts via WhatsApp.
 
 ## Current Status
 
-🟡 **Prototype** — Conversational layer (Copilot Studio) + WhatsApp notification (Azure Function + Twilio) working end-to-end.
+**Prototype** — Conversational layer (Copilot Studio) + WhatsApp notification (Azure Function + Twilio) working end-to-end.
 
 ---
 
@@ -28,41 +28,93 @@ flyminder/
 │       └── function.json            # Azure binding config
 ├── copilot-studio/
 │   └── topics/
-│       └── flight-entry.yaml        # FlyMinder Copilot Studio topic export
+│       └── flight-entry.yaml        # Copilot Studio adaptive dialog topic
 └── docs/
-    └── testing-notes.md             # Twilio error codes & sandbox setup
+    └── testing-notes.md             # Twilio sandbox setup + test cases
 ```
 
 ---
 
-## Local Setup
+## Setup
 
-### 1. Prerequisites
+### Prerequisites
 
-- [Azure Functions Core Tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local) v4+
 - Node.js 18+
-- A Twilio account with WhatsApp sandbox enabled
+- Azure Functions Core Tools v4
+- Twilio account with WhatsApp sandbox enabled
+- Microsoft Copilot Studio environment
 
-### 2. Configure environment
+### Local Development
 
-```bash
-cp local.settings.json.example local.settings.json
-# Fill in your TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_FROM
-```
+1. Clone the repository
+2. Copy `local.settings.json.example` to `local.settings.json` and fill in your credentials
+3. Run `func start` from the project root to start the Azure Function locally
+4. Test the endpoint with a POST request to `http://localhost:7071/api/send-reminder`
 
-### 3. Run locally
-
-```bash
-func start
-```
-
----
-
-## Environment Variables
+### Environment Variables
 
 | Variable | Description |
 |---|---|
 | `TWILIO_ACCOUNT_SID` | Your Twilio Account SID |
 | `TWILIO_AUTH_TOKEN` | Your Twilio Auth Token |
-| `TWILIO_FROM` | Sender number, e.g. `whatsapp:+14155238886` |
-| `AzureWebJobsStorage` | Azure Storage connection string |
+| `TWILIO_FROM` | Twilio WhatsApp sender number (e.g. `whatsapp:+14155238886`) |
+| `AzureWebJobsStorage` | Azure Storage connection string (use `UseDevelopmentStorage=true` locally) |
+
+---
+
+## API Reference
+
+### POST /api/send-reminder
+
+**Request body:**
+
+```json
+{
+  "personName": "string",
+  "userPhone": "string",
+  "flightNumber": "string",
+  "departureTime": "string",
+  "originCity": "string",
+  "destinationAirport": "string"
+}
+```
+
+**Response:**
+
+```json
+{
+  "message": "Reminder sent to <name>",
+  "etaMinutes": 120,
+  "twilioStatus": "queued",
+  "twilioSid": "SM..."
+}
+```
+
+---
+
+## Planned Features
+
+- Flight status lookup via aviation API
+- Dynamic ETA calculation based on distance and transport mode
+- Multi-language support
+- Reminder scheduling (send X hours before departure)
+
+---
+
+## Branching Strategy
+
+| Branch | Purpose |
+|---|---|
+| `main` | Stable, production-ready code |
+| `feature/v1` | Active development (Azure Functions + Copilot Studio) |
+
+---
+
+## Tech Stack
+
+| Component | Technology |
+|---|---|
+| Conversational bot | Microsoft Copilot Studio |
+| Backend function | Azure Functions (Node.js 18) |
+| WhatsApp messaging | Twilio API |
+| Runtime | Azure Functions v4 |
