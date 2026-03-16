@@ -1,0 +1,32 @@
+# Azure Functions — contains connection strings & secrets, never commit
+local.settings.json
+
+# Twilio logs — contain real phone numbers and message content
+sms-log-*.csv
+
+# Node
+node_modules/
+package-lock.json
+
+# Python (for future functions)
+__pycache__/
+*.pyc
+.venv/
+venv/
+.python_packages/
+
+# Azure
+.azure/
+*.zip
+
+# Environment & secrets
+.env
+*.env
+secrets.yaml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
