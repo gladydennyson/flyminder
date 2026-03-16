@@ -1,0 +1,96 @@
+kind: AdaptiveDialog
+modelDescription: |-
+  Flight Entry: 
+  Takes in the Flight number, Departure city/airport, Destination city/airport, Date/time of flight, Name (for personalized messages)
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent: {}
+  actions:
+    - kind: Question
+      id: question_NMv71W
+      interruptionPolicy:
+        allowInterruption: true
+      variable: init:Topic.FlightNumber
+      prompt: Please enter the flight number.
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_tll0uM
+      interruptionPolicy:
+        allowInterruption: true
+      variable: init:Topic.DateTime
+      prompt: When is your flight? (Date and time)
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_dTyxOy
+      interruptionPolicy:
+        allowInterruption: true
+      variable: init:Topic.DepartureCity
+      prompt: Please enter the departure city / airport
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_AVUVwR
+      interruptionPolicy:
+        allowInterruption: true
+      variable: init:Topic.DestinationAirport
+      prompt: What's the destination airport?
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_2xT4FS
+      interruptionPolicy:
+        allowInterruption: true
+      variable: init:Topic.PersonName
+      prompt: "Please give the name of the person you would like to send flight reminders to :) "
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_k2IH1B
+      interruptionPolicy:
+        allowInterruption: true
+      variable: init:Topic.UserPhone
+      prompt: "What's the WhatsApp number I should send the reminder to? (include country code, e.g., +91…)"
+      entity: StringPrebuiltEntity
+
+    - kind: SetVariable
+      id: setVariable_wxnpdI
+      variable: Topic.CustomBody
+      value: |-
+        =Concatenate("Hi ", Topic.PersonName, " kuta 😘 Your flight ", Topic.FlightNumber,
+        " from ", Topic.DepartureCity, " to ", Topic.DestinationAirport,
+        " is at ", Topic.DateTime, ". Don't be late again 😆 Safe travels kuta ✈️")
+
+    - kind: InvokeConnectorAction
+      id: invokeConnectorAction_d7TqLr
+      input:
+        binding:
+          body: =Topic.CustomBody
+          Content-Type: application/json
+          dateTimeISO: =Topic.DateTime
+          destinationAirport: =Topic.DestinationAirport
+          flightNumber: =Topic.FlightNumber
+          originAddress: =Topic.DepartureCity
+          personName: =Topic.PersonName
+          userPhone: =Topic.UserPhone
+      output:
+        kind: SingleVariableOutputBinding
+        variable: Topic.SendReminder
+      # NOTE: connectionReference is environment-specific.
+      # After importing to a new environment, re-bind this connector action
+      # to your own Azure Function HTTP connector in Power Platform.
+      connectionReference: crc65_agentlQS8t9.shared_crc65-5fflightbuddyapi-5f51fa887124269579.118ab5e75eda4c77a27fa00b8863e4e6
+      connectionProperties:
+        mode: Maker
+      operationId: SendReminder
+
+    - kind: SendActivity
+      id: sendActivity_WYsd7Q
+      activity: |-
+        I've sent your flight reminder to WhatsApp, {Topic.PersonName}
+        Estimated time to airport: {Topic.SendReminder.etaMinutes}
+
+inputType: {}
+outputType: {}
